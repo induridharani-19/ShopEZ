@@ -29,20 +29,30 @@ graph TD
 Defines how users (Customers and Administrators) interact with various services in ShopEZ.
 
 ```mermaid
-left-to-right direction
-actor Customer
-actor Administrator
+graph LR
+    subgraph Users ["👤 Roles"]
+        Customer["Customer"]
+        Administrator["Administrator"]
+    end
 
-rectangle ShopEZ_System {
-    Customer --> (Browse Catalog)
-    Customer --> (Use AI Chatbot)
-    Customer --> (Add to Cart / Checkout)
-    Customer --> (Manage Profile)
-    
-    Administrator --> (Manage Products Catalog)
-    Administrator --> (Update Orders Status)
-    Administrator --> (Monitor Analytics Dashboard)
-}
+    subgraph System ["🛒 ShopEZ System"]
+        UC1["Browse Catalog"]
+        UC2["Use AI Chatbot"]
+        UC3["Add to Cart & Checkout"]
+        UC4["Manage Profile"]
+        UC5["Manage Products Catalog"]
+        UC6["Update Orders Status"]
+        UC7["Monitor Analytics Dashboard"]
+    end
+
+    Customer --> UC1
+    Customer --> UC2
+    Customer --> UC3
+    Customer --> UC4
+
+    Administrator --> UC5
+    Administrator --> UC6
+    Administrator --> UC7
 ```
 
 ---
