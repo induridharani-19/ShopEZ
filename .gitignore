@@ -49,3 +49,4 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 *.pkl
+.github/workflows/
