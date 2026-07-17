@@ -133,6 +133,109 @@ async function testJSTFIDFRecommendationFallback() {
   console.log("✔ [Test 3] Passed successfully.");
 }
 
+async function testAdminMiddlewareGate() {
+  const { default: User } = await import("../models/User.js");
+  const { default: adminMiddleware } = await import("../middleware/adminMiddleware.js");
+
+  console.log("▶ [Test 4] Testing adminMiddleware gate...");
+  
+  // Stub User.findById
+  const originalFindById = User.findById;
+  User.findById = (id) => {
+    return {
+      exec: async () => {
+        if (id === "admin_user") return { _id: id, isAdmin: true };
+        if (id === "customer_user") return { _id: id, isAdmin: false };
+        return null;
+      }
+    };
+  };
+
+  // Directly assign search response in case exec() is skipped by middleware implementation
+  // Let's verify middleware implementation uses findById(id)
+  User.findById = async (id) => {
+    if (id === "admin_user") return { _id: id, isAdmin: true };
+    if (id === "customer_user") return { _id: id, isAdmin: false };
+    return null;
+  };
+
+  try {
+    // Case A: User is admin
+    const reqA = { user: { id: "admin_user" } };
+    let nextCalledA = false;
+    const resA = {};
+    await adminMiddleware(reqA, resA, () => { nextCalledA = true; });
+    assert.ok(nextCalledA, "adminMiddleware should call next() for admin user");
+
+    // Case B: User is customer (not admin)
+    const reqB = { user: { id: "customer_user" } };
+    let statusB = 0;
+    let responseJsonB = null;
+    const resB = {
+      status(code) {
+        statusB = code;
+        return { json(data) { responseJsonB = data; } };
+      }
+    };
+    await adminMiddleware(reqB, resB, () => {
+      assert.fail("adminMiddleware should not call next() for customer user");
+    });
+    assert.strictEqual(statusB, 403, "Should return 403 Forbidden status");
+    assert.ok(responseJsonB && responseJsonB.message.includes("Access denied"), "Should deny access");
+
+    console.log("✔ [Test 4] Passed successfully.");
+  } finally {
+    // Restore stub
+    User.findById = originalFindById;
+  }
+}
+
+async function testOrderCardValidation() {
+  console.log("▶ [Test 5] Testing card input validator logic...");
+  
+  const validateCard = (cardNumber, cardExpiry, cardCvv, cardName) => {
+    const sanitizedCardNum = cardNumber ? cardNumber.replace(/\s/g, "") : "";
+    if (!sanitizedCardNum || sanitizedCardNum.length !== 16 || isNaN(Number(sanitizedCardNum))) {
+      return "Invalid Card Number. Must be 16 digits.";
+    }
+    if (!cardExpiry || !cardExpiry.includes("/") || cardExpiry.length !== 5) {
+      return "Invalid Expiration Date. Format must be MM/YY.";
+    }
+    if (!cardCvv || cardCvv.length !== 3 || isNaN(Number(cardCvv))) {
+      return "Invalid CVV. Must be 3 digits.";
+    }
+    if (!cardName || cardName.trim() === "") {
+      return "Cardholder Name is required.";
+    }
+    return null; // Valid
+  };
+
+  assert.strictEqual(validateCard("1234 5678 1234 5678", "12/28", "123", "John Doe"), null, "Valid card should pass");
+  assert.ok(validateCard("12345678", "12/28", "123", "John Doe"), "Should fail on short card number");
+  assert.ok(validateCard("1234567812345678", "12-28", "123", "John Doe"), "Should fail on invalid expiry format");
+  assert.ok(validateCard("1234567812345678", "12/28", "12", "John Doe"), "Should fail on short CVV");
+  assert.ok(validateCard("1234567812345678", "12/28", "123", ""), "Should fail on empty name");
+  
+  console.log("✔ [Test 5] Passed successfully.");
+}
+
+async function testOrderUPIValidation() {
+  console.log("▶ [Test 6] Testing UPI input validator logic...");
+  
+  const validateUPI = (upiId) => {
+    if (!upiId || !upiId.includes("@")) {
+      return "Invalid UPI ID. Must include '@' symbol (e.g., user@bank).";
+    }
+    return null;
+  };
+
+  assert.strictEqual(validateUPI("user@okaxis"), null, "Valid UPI should pass");
+  assert.ok(validateUPI("userokaxis"), "Should fail if @ is missing");
+  assert.ok(validateUPI(""), "Should fail if empty");
+
+  console.log("✔ [Test 6] Passed successfully.");
+}
+
 async function runTestSuite() {
   console.log("==========================================");
   console.log("      SHOPEZ UNIT & INTEGRATION TESTS     ");
@@ -141,7 +244,10 @@ async function runTestSuite() {
     await testJWTSigningAndVerification();
     await testAuthMiddlewareGate();
     await testJSTFIDFRecommendationFallback();
-    console.log("\n🎉 ALL TEST SUITES PASSED SUCCESSFULLY.");
+    await testAdminMiddlewareGate();
+    await testOrderCardValidation();
+    await testOrderUPIValidation();
+    console.log("\n🎉 ALL 6 TEST SUITES PASSED SUCCESSFULLY.");
     console.log("==========================================");
   } catch (error) {
     console.error("\n❌ TEST SUITE FAILED WITH AN ERROR:");

@@ -10,8 +10,8 @@ services:
       - "5000:5000"
     environment:
       - PORT=5000
-      - MONGO_URI=mongodb+srv://induridharani728_db_user:Vamsi19@shopez.bfwoijh.mongodb.net/shopez?retryWrites=true&w=majority
-      - JWT_SECRET=shopez_secret_key_2026
+      - MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/shopez?retryWrites=true&w=majority
+      - JWT_SECRET=shopez_fallback_secret_key_change_me
     restart: always
 
   # 2. Python Flask AI Recommendation Service
