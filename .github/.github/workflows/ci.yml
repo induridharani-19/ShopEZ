@@ -1,1 +1,91 @@
+name: ShopEZ CI
 
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ShopEZ
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Frontend
+        run: npm run build
+
+  backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Backend Tests
+        run: |
+          if [ -f tests/run_tests.js ]; then
+            node tests/run_tests.js
+          else
+            echo "No backend tests found."
+          fi
+
+  ai-module:
+    name: AI Module Validation
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ai_module
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      - name: Validate AI Module
+        run: |
+          python -m py_compile ai_server.py
+          if [ -f train_recommender.py ]; then
+            python -m py_compile train_recommender.py
+          fi
