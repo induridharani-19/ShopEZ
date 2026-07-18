@@ -37,12 +37,12 @@ ShopEZ/
 │   │   ├── components/     # ProtectedRoute, AIChatbot, ProductCard, etc.
 │   │   ├── context/        # AuthContext, CartContext
 │   │   └── pages/          # Home, Products, admin/Dashboard, admin/Orders
-│   └── .env
+│   └── .env.example
 ├── backend/                # Express API Backend Server
 │   ├── middleware/         # authMiddleware, adminMiddleware
 │   ├── models/             # User, Product, Order mongoose schemas
 │   ├── routes/             # authRoutes, productRoutes, orderRoutes, aiRoutes
-│   └── .env
+│   └── .env.example
 ├── ai_module/              # Python AI Recommendation Service
 │   ├── models/             # Pickled recommender_model.pkl
 │   ├── train_recommender.py# ML training pipeline script
@@ -65,24 +65,41 @@ ShopEZ/
 
 ## 🛠 Local Development Setup
 
-To run the application, navigate to each directory and follow the setup instructions detailed in [user_manual.md](docs/user_manual.md):
+To run the application locally, navigate to each directory, duplicate the environment examples to initialize your configs, and install dependencies:
 
-1. **MongoDB Database**: Make sure your local MongoDB instance is active or paste your MongoDB Atlas Connection URI in `backend/.env`.
-2. **Node Backend**:
+1. **Backend Configuration**:
+   Copy the example environment template and fill in your connection details:
    ```bash
    cd backend
+   cp .env.example .env
+   # Or on Windows PowerShell:
+   # cp .env.example .env
+   ```
+   Open `backend/.env` and set your `MONGO_URI` and `JWT_SECRET`.
+   
+   Install dependencies and run the developer hot-reload server:
+   ```bash
    npm install
    npm run dev
    ```
-3. **React Frontend**:
+
+2. **Frontend Configuration**:
+   Copy the example environment template and configure your api endpoints:
    ```bash
-   cd ShopEZ
+   cd ../ShopEZ
+   cp .env.example .env
+   ```
+   Open `ShopEZ/.env` and set `VITE_API_URL=http://localhost:5000/api`.
+   
+   Install dependencies and start the Vite dev server:
+   ```bash
    npm install
    npm run dev
    ```
-4. **AI Flask Server (Optional)**:
+
+3. **AI Flask Server (Optional)**:
    ```bash
-   cd ai_module
+   cd ../ai_module
    pip install -r requirements.txt
    python train_recommender.py
    python ai_server.py
