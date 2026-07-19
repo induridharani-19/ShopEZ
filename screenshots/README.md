@@ -2,6 +2,16 @@
 
 This folder holds screenshots and video evidence verifying the ShopEZ storefront application. Follow this guide to capture required files for submission.
 
+## 🎬 Application Demo Video
+
+Below is the verified video demonstration of the ShopEZ storefront and administration dashboard in action:
+
+<div align="center">
+  <video src="demo-video.mp4" width="100%" height="auto" controls></video>
+  <br>
+  <a href="https://github.com/induridharani-19/ShopEZ/raw/main/screenshots/demo-video.mp4">Download/View Raw Video File</a>
+</div>
+
 ---
 
 ## 1. Required Screenshots Checklist

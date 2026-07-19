@@ -17,6 +17,16 @@
 
 ---
 
+## 🎬 Application Demo Video
+
+Below is the video demonstration showcasing the storefront features, AI recommendations, chatbot functionality, and administrative dashboard. You can play it directly below or [download the video file](https://github.com/induridharani-19/ShopEZ/raw/main/screenshots/demo-video.mp4).
+
+<div align="center">
+  <video src="screenshots/demo-video.mp4" width="100%" height="auto" controls></video>
+</div>
+
+---
+
 ## 🎨 System Architecture
 
 Below is the high-level software architecture diagram representing client interaction flow, REST middleware API gates, and the machine learning recommendation subsystem:
